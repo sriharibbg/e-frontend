@@ -30,6 +30,35 @@ export const get_products = createAsyncThunk(
 // End Method 
 
 
+export const price_range_product = createAsyncThunk(
+    'product/price_range_product',
+    async(_, { fulfillWithValue }) => {
+        try {
+            const {data} = await api.get('/home/price-range-latest-product')
+             console.log(data)
+            return fulfillWithValue(data)
+        } catch (error) {
+            console.log(error.respone)
+        }
+    }
+)
+// End Method 
+
+export const query_products = createAsyncThunk(
+    'product/query_products',
+    async(query , { fulfillWithValue }) => {
+        try {
+            const {data} = await api.get(`/home/query-products?category=${query.category}&&rating=${query.rating}&&lowPrice=${query.low}&&highPrice=${query.high}&&sortPrice=${query.sortPrice}&&pageNumber=${query.pageNumber}&&searchValue=${query.searchValue ? query.searchValue : ''} `)
+            //  console.log(data)
+            return fulfillWithValue(data)
+        } catch (error) {
+            console.log(error.respone)
+        }
+    }
+)
+// End Method 
+
+
 
 
 export const homeReducer = createSlice({
@@ -37,9 +66,15 @@ export const homeReducer = createSlice({
     initialState:{
         categorys : [],
         products : [],
+        totalProduct : 0,
+        parPage: 3,
         latest_product : [],
         topRated_product : [],
         discount_product : [],
+        priceRange : {
+            low: 0,
+            high: 100
+        }
     },
     reducers : {
  
@@ -54,6 +89,15 @@ export const homeReducer = createSlice({
             state.latest_product = payload.latest_product;
             state.topRated_product = payload.topRated_product;
             state.discount_product = payload.discount_product;
+        })
+        .addCase(price_range_product.fulfilled, (state, { payload }) => { 
+            state.latest_product = payload.latest_product;
+            state.priceRange = payload.priceRange; 
+        })
+        .addCase(query_products.fulfilled, (state, { payload }) => { 
+            state.products = payload.products;
+            state.totalProduct = payload.totalProduct;
+            state.parPage = payload.parPage; 
         })
 
     }
